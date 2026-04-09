@@ -1,0 +1,105 @@
+/* === @wallet marketing banner === */
+.banner {
+  margin: 0 16px 16px;
+  background: #1b2838;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.content {
+  display: flex;
+  align-items: stretch;
+  min-height: 100px;
+  position: relative;
+}
+
+.textBlock {
+  flex: 1;
+  padding: 14px 0 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.link {
+  font-size: 13px;
+  color: #3b9dff;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 400;
+  line-height: 1.3;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.link:active {
+  opacity: 0.7;
+}
+
+/* Pagination dots */
+.dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.dot {
+  width: 16px;
+  height: 4px;
+  border-radius: 2px;
+  background: #3b9dff;
+}
+
+.dotInactive {
+  background: #2a3a4e;
+  width: 8px;
+}
+
+/* Right side image area */
+.imageBlock {
+  width: 100px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.promoImage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Close button */
+.closeBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #7b8fa3;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s;
+}
+
+.closeBtn:active {
+  opacity: 0.5;
+}

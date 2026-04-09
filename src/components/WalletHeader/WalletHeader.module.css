@@ -1,0 +1,47 @@
+.header {
+  padding: 8px 0 0;
+}
+
+.avatarRow {
+  padding: 4px 16px 8px;
+}
+
+.avatarWrap {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.menuOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+
+.menu {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  min-width: 220px;
+  z-index: 51;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.disconnectText {
+  color: #ff453a;
+}
+
+.balanceBlock {
+  text-align: center;
+  padding: 12px 16px 20px;
+}
+
+.balanceAmount {
+  font-size: 34px !important;
+  letter-spacing: -0.5px;
+}
+
+.inlineButtons {
+  padding: 0 8px 12px;
+}
