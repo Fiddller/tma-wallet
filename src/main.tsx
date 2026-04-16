@@ -1,3 +1,7 @@
+import { Buffer } from 'buffer';
+// Polyfill Buffer for @ton/core in browser
+(globalThis as any).Buffer = Buffer;
+
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';

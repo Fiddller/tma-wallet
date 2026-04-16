@@ -44,7 +44,7 @@ export function SendModal() {
         // TestJetton transfer
         const loadingToast = toast.loading('Получаем Jetton-кошелёк...');
         const jettonWallet = await getJettonWalletAddress(address, TEST_JETTON_MASTER);
-        const payload = buildJettonTransferPayload(data.address, data.amount, 9);
+        const payload = await buildJettonTransferPayload(data.address, data.amount, 9);
 
         toast.dismiss(loadingToast);
         await sendRawTransaction({
