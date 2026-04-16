@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Avatar, Cell, InlineButtons, Section, Title } from '@telegram-apps/telegram-ui';
+import { Avatar, Cell, InlineButtons, Section } from '@telegram-apps/telegram-ui';
 import { useAppStore } from '../../store/useAppStore';
 import { useTonConnect } from '../../hooks/useTonConnect';
 import { formatBalanceRub } from '../../utils/formatBalance';
@@ -9,6 +9,7 @@ export function WalletHeader() {
   const { balance, isConnected, openModal, address } = useAppStore();
   const { openConnectModal, disconnect } = useTonConnect();
   const [showMenu, setShowMenu] = useState(false);
+  const [activeTab, setActiveTab] = useState<'crypto' | 'ton'>('crypto');
 
   const handleAvatarClick = () => {
     if (isConnected) {
@@ -25,14 +26,20 @@ export function WalletHeader() {
 
   return (
     <div className={styles.header}>
-      {/* Avatar row */}
-      <div className={styles.avatarRow}>
+      {/* Top row: avatar (left) + tabs (center) */}
+      <div className={styles.topRow}>
         <div className={styles.avatarWrap}>
-          <div onClick={handleAvatarClick}>
-            <Avatar
-              size={40}
-              acronym={isConnected ? address?.slice(0, 2).toUpperCase() : 'W'}
-            />
+          <div onClick={handleAvatarClick} className={styles.avatarClickable}>
+            {isConnected ? (
+              <Avatar size={40} acronym={address?.slice(0, 2).toUpperCase() || 'W'} />
+            ) : (
+              <div className={styles.walletLogo}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2L2 8.5v7L12 22l10-6.5v-7L12 2z" fill="#3b9dff"/>
+                  <path d="M12 2v20M2 8.5L22 15.5M22 8.5L2 15.5" stroke="#fff" strokeWidth="1" opacity="0.3"/>
+                </svg>
+              </div>
+            )}
           </div>
           {showMenu && (
             <>
@@ -48,13 +55,33 @@ export function WalletHeader() {
             </>
           )}
         </div>
+
+        <div className={styles.tabs}>
+          <button
+            className={`${styles.tab} ${activeTab === 'crypto' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('crypto')}
+            type="button"
+          >
+            Крипто
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'ton' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('ton')}
+            type="button"
+          >
+            TON
+          </button>
+        </div>
+
+        <div className={styles.topSpacer} />
       </div>
 
       {/* Balance */}
       <div className={styles.balanceBlock}>
-        <Title weight="1" className={styles.balanceAmount}>
-          {formatBalanceRub(balance)} ₽
-        </Title>
+        <div className={styles.balanceLabel}>Баланс</div>
+        <div className={styles.balanceAmount}>
+          {formatBalanceRub(balance)} <span className={styles.currency}>₽</span>
+        </div>
       </div>
 
       {/* Action buttons */}

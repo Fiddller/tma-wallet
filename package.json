@@ -13,6 +13,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@telegram-apps/sdk-react": "^3.3.9",
     "@telegram-apps/telegram-ui": "^2.1.13",
+    "@ton/core": "^0.63.1",
     "@tonconnect/ui-react": "^2.4.4",
     "qrcode.react": "^4.2.0",
     "react": "^18.2.0",

@@ -59,6 +59,13 @@ export function useTonConnect() {
     });
   };
 
+  const sendRawTransaction = async (msg: { address: string; amount: string; payload: string }) => {
+    return tonConnectUI.sendTransaction({
+      validUntil: Math.floor(Date.now() / 1000) + 600,
+      messages: [msg],
+    });
+  };
+
   return {
     tonConnectUI,
     wallet,
@@ -67,5 +74,6 @@ export function useTonConnect() {
     openConnectModal,
     disconnect,
     sendTransaction,
+    sendRawTransaction,
   };
 }
