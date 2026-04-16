@@ -1,6 +1,48 @@
 // TestJetton master contract (testnet)
 // https://github.com/seniorGarin/test-master
 export const TEST_JETTON_MASTER = 'kQD8IpAw9lq0c13mg7_iRRMv1cwMEAC_F2tDlFAJDqEVxb5x';
+export const JETTON_DECIMALS = 9;
+const TONCENTER_TESTNET = 'https://testnet.toncenter.com/api/v2';
+
+/**
+ * Get jetton balance for a user's wallet.
+ * Returns amount in human-readable units (divided by 10^decimals).
+ * Returns 0 if user has no jetton wallet yet.
+ */
+export async function getJettonBalance(
+  ownerAddress: string,
+  jettonMaster: string = TEST_JETTON_MASTER,
+  decimals: number = JETTON_DECIMALS,
+): Promise<number> {
+  try {
+    const jettonWallet = await getJettonWalletAddress(ownerAddress, jettonMaster);
+
+    // Call get_wallet_data on the jetton wallet
+    const res = await fetch(`${TONCENTER_TESTNET}/runGetMethod`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        address: jettonWallet,
+        method: 'get_wallet_data',
+        stack: [],
+      }),
+    });
+
+    const data = await res.json();
+    if (!data.ok || !data.result?.stack?.[0]) {
+      return 0;
+    }
+
+    // Stack: [balance, owner, jetton, jetton_wallet_code]
+    // First element is balance as hex number: ["num", "0x..."]
+    const [type, value] = data.result.stack[0];
+    if (type !== 'num') return 0;
+    const balanceNano = BigInt(value);
+    return Number(balanceNano) / 10 ** decimals;
+  } catch {
+    return 0;
+  }
+}
 
 /**
  * Get user's jetton wallet address for a given jetton master.

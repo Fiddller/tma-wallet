@@ -3,7 +3,7 @@ import { Avatar, Cell, InlineButtons, Section } from '@telegram-apps/telegram-ui
 import { useAppStore } from '../../store/useAppStore';
 import { useTonConnect } from '../../hooks/useTonConnect';
 import { useTelegram } from '../../hooks/useTelegram';
-import { formatBalanceRub } from '../../utils/formatBalance';
+import { formatJetton } from '../../utils/formatBalance';
 import styles from './WalletHeader.module.css';
 
 export function WalletHeader() {
@@ -69,7 +69,7 @@ export function WalletHeader() {
       <div className={styles.balanceBlock}>
         <div className={styles.balanceLabel}>Баланс</div>
         <div className={styles.balanceAmount}>
-          {formatBalanceRub(balance)} <span className={styles.currency}>₽</span>
+          {formatJetton(balance)} <span className={styles.currency}>TJ</span>
         </div>
       </div>
 

@@ -2,21 +2,6 @@ import { useEffect } from 'react';
 import { useTonConnectUI, useTonWallet, useTonAddress } from '@tonconnect/ui-react';
 import { useAppStore } from '../store/useAppStore';
 
-const TON_API_BASE = 'https://toncenter.com/api/v2';
-
-async function fetchTonBalance(address: string): Promise<number> {
-  try {
-    const res = await fetch(`${TON_API_BASE}/getAddressBalance?address=${address}`);
-    const data = await res.json();
-    if (data.ok) {
-      return Number(data.result) / 1e9;
-    }
-    return 0;
-  } catch {
-    return 0;
-  }
-}
-
 export function useTonConnect() {
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
@@ -31,7 +16,10 @@ export function useTonConnect() {
 
     if (connected && address) {
       setAddress(friendlyAddress || address);
-      fetchTonBalance(address).then(setBalance);
+      // Lazy-load jetton utils to avoid loading @ton/core on app start
+      import('../utils/jetton').then(({ getJettonBalance }) => {
+        getJettonBalance(address).then(setBalance);
+      });
     } else {
       setBalance(0);
       setAddress('');
