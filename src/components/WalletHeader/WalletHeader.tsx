@@ -2,14 +2,22 @@ import { useState } from 'react';
 import { Avatar, Cell, InlineButtons, Section } from '@telegram-apps/telegram-ui';
 import { useAppStore } from '../../store/useAppStore';
 import { useTonConnect } from '../../hooks/useTonConnect';
+import { useTelegram } from '../../hooks/useTelegram';
 import { formatBalanceRub } from '../../utils/formatBalance';
 import styles from './WalletHeader.module.css';
 
 export function WalletHeader() {
   const { balance, isConnected, openModal, address } = useAppStore();
   const { openConnectModal, disconnect } = useTonConnect();
+  const { getUser } = useTelegram();
   const [showMenu, setShowMenu] = useState(false);
   const [activeTab, setActiveTab] = useState<'crypto' | 'ton'>('crypto');
+
+  const tgUser = getUser();
+  const userPhoto = tgUser?.photo_url;
+  const userAcronym = tgUser
+    ? `${tgUser.first_name?.[0] || ''}${tgUser.last_name?.[0] || ''}`.toUpperCase()
+    : address?.slice(0, 2).toUpperCase() || 'W';
 
   const handleAvatarClick = () => {
     if (isConnected) {
@@ -31,7 +39,7 @@ export function WalletHeader() {
         <div className={styles.avatarWrap}>
           <div onClick={handleAvatarClick} className={styles.avatarClickable}>
             {isConnected ? (
-              <Avatar size={40} acronym={address?.slice(0, 2).toUpperCase() || 'W'} />
+              <Avatar size={40} src={userPhoto} acronym={userAcronym} />
             ) : (
               <div className={styles.walletLogo}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">

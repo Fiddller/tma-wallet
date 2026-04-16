@@ -41,9 +41,15 @@ export function useTelegram() {
     return webApp?.themeParams ?? {};
   }, []);
 
+  const getUser = useCallback(() => {
+    const webApp = getWebApp();
+    return webApp?.initDataUnsafe?.user ?? null;
+  }, []);
+
   return {
     webApp: getWebApp(),
     getTheme,
     getThemeParams,
+    getUser,
   };
 }
