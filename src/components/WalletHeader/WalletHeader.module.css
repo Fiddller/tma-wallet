@@ -2,13 +2,11 @@
   padding: 8px 0 0;
 }
 
-/* Top row: avatar | tabs | spacer */
+/* Top row: avatar */
 .topRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 4px 16px 8px;
-  gap: 12px;
 }
 
 .avatarWrap {
@@ -29,44 +27,6 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-}
-
-.topSpacer {
-  width: 40px;
-  flex-shrink: 0;
-}
-
-/* Tabs: Крипто / TON */
-.tabs {
-  display: flex;
-  background: var(--tgui--secondary_bg_color, #1b2838);
-  border-radius: 20px;
-  padding: 2px;
-  gap: 2px;
-}
-
-.tab {
-  padding: 6px 18px;
-  border: none;
-  border-radius: 18px;
-  background: transparent;
-  color: var(--tgui--subtitle_text_color, #7b8fa3);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  -webkit-tap-highlight-color: transparent;
-  white-space: nowrap;
-  font-family: inherit;
-}
-
-.tabActive {
-  background: var(--tgui--tertiary_bg_color, #2a3a4e);
-  color: var(--tgui--text_color, #ffffff);
-}
-
-.tab:active {
-  opacity: 0.7;
 }
 
 /* Dropdown menu for connected wallet */

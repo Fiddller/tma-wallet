@@ -11,7 +11,6 @@ export function WalletHeader() {
   const { openConnectModal, disconnect } = useTonConnect();
   const { getUser } = useTelegram();
   const [showMenu, setShowMenu] = useState(false);
-  const [activeTab, setActiveTab] = useState<'crypto' | 'ton'>('crypto');
 
   const tgUser = getUser();
   const userPhoto = tgUser?.photo_url;
@@ -64,24 +63,6 @@ export function WalletHeader() {
           )}
         </div>
 
-        <div className={styles.tabs}>
-          <button
-            className={`${styles.tab} ${activeTab === 'crypto' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('crypto')}
-            type="button"
-          >
-            Крипто
-          </button>
-          <button
-            className={`${styles.tab} ${activeTab === 'ton' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('ton')}
-            type="button"
-          >
-            TON
-          </button>
-        </div>
-
-        <div className={styles.topSpacer} />
       </div>
 
       {/* Balance */}
