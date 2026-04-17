@@ -4,7 +4,7 @@ export const tonAddressSchema = z
   .string()
   .min(1, 'Введите адрес')
   .regex(
-    /^(EQ|UQ|0:|kQ)[a-zA-Z0-9_-]{46,48}$/,
+    /^[EUkQ0][A-Za-z0-9_-]{47}$/,
     'Некорректный TON-адрес'
   );
 
