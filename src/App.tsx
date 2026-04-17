@@ -3,6 +3,7 @@ import { WalletHeader } from './components/WalletHeader/WalletHeader';
 import { MarketingBanner } from './components/MarketingBanner/MarketingBanner';
 import { SendModal } from './components/Modals/SendModal';
 import { ReceiveModal } from './components/Modals/ReceiveModal';
+import { MintModal } from './components/Modals/MintModal';
 import { PlaceholderModal } from './components/Modals/PlaceholderModal';
 import { useAppStore } from './store/useAppStore';
 import { useTelegram } from './hooks/useTelegram';
@@ -21,6 +22,7 @@ function App() {
 
       {activeModal === 'send' && <SendModal />}
       {activeModal === 'receive' && <ReceiveModal />}
+      {activeModal === 'mint' && <MintModal />}
       {(activeModal === 'withdraw' || activeModal === 'exchange') && (
         <PlaceholderModal />
       )}

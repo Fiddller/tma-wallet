@@ -1,4 +1,5 @@
 import type { JettonTransfer } from '../contracts/TestWallet';
+import type { JettonMint } from '../contracts/TestMaster';
 
 // TestJetton master contract (testnet)
 // https://github.com/seniorGarin/test-master
@@ -71,5 +72,37 @@ export async function buildJettonTransferPayload(
   };
 
   const body = beginCell().store(storeJettonTransfer(transfer)).endCell();
+  return body.toBoc().toString('base64');
+}
+
+/**
+ * Build JettonMint payload using TestMaster's storeJettonMint.
+ * Sent to the master contract — mints new jettons to the receiver.
+ */
+export async function buildJettonMintPayload(
+  origin: string,
+  receiver: string,
+  amount: string,
+  decimals: number = JETTON_DECIMALS,
+): Promise<string> {
+  const { Address, beginCell, toNano } = await import('@ton/core');
+  const { storeJettonMint } = await import('../contracts/TestMaster');
+
+  const originAddr = Address.parse(origin);
+  const receiverAddr = Address.parse(receiver);
+  const amountNano = BigInt(Math.floor(Number(amount) * 10 ** decimals));
+
+  const mint: JettonMint = {
+    $$type: 'JettonMint',
+    query_id: 0n,
+    origin: originAddr,
+    receiver: receiverAddr,
+    amount: amountNano,
+    custom_payload: null,
+    forward_ton_amount: toNano('0.01'),
+    forward_payload: beginCell().endCell().asSlice(),
+  };
+
+  const body = beginCell().store(storeJettonMint(mint)).endCell();
   return body.toBoc().toString('base64');
 }

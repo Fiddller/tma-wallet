@@ -94,12 +94,10 @@ export function WalletHeader() {
             <path d="M8 16h8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
           </svg>
         </InlineButtons.Item>
-        <InlineButtons.Item text="Обменять" onClick={() => openModal('exchange')}>
+        <InlineButtons.Item text="Минт" onClick={() => openModal('mint')}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M17 4l3 3-3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M4 7h16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-            <path d="M7 20l-3-3 3-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M20 17H4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" fill="none"/>
+            <path d="M12 7v10M7 12h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
           </svg>
         </InlineButtons.Item>
       </InlineButtons>

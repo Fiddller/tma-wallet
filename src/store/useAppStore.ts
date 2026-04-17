@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type ModalType = 'send' | 'receive' | 'withdraw' | 'exchange' | null;
+type ModalType = 'send' | 'receive' | 'withdraw' | 'exchange' | 'mint' | null;
 
 interface ModalState {
   activeModal: ModalType;
