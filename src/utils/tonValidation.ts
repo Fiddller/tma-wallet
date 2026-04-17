@@ -1,11 +1,23 @@
 import { z } from 'zod';
+import { Address } from '@ton/core';
 
+/**
+ * Валидация TON-адреса через @ton/core Address.
+ * Принимает как friendly (EQ.../UQ...), так и raw (0:abcd...) формат.
+ */
 export const tonAddressSchema = z
   .string()
   .min(1, 'Введите адрес')
-  .regex(
-    /^[EUkQ0][A-Za-z0-9_-]{47}$/,
-    'Некорректный TON-адрес'
+  .refine(
+    (v) => {
+      try {
+        Address.parse(v);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    'Некорректный TON-адрес',
   );
 
 export const sendFormSchema = z.object({
