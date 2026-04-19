@@ -1,23 +1,24 @@
 import type { JettonTransfer } from '../contracts/TestWallet';
 import type { JettonMint } from '../contracts/TestMaster';
+import { JETTON_MASTER, JETTON_DECIMALS, TONCLIENT_ENDPOINT } from '../config';
 
-// TestJetton master contract (testnet)
-// https://github.com/seniorGarin/test-master
-export const TEST_JETTON_MASTER = 'kQD8IpAw9lq0c13mg7_iRRMv1cwMEAC_F2tDlFAJDqEVxb5x';
-export const JETTON_DECIMALS = 9;
+// Re-export для обратной совместимости с местами где использовали старые имена
+export const TEST_JETTON_MASTER = JETTON_MASTER;
+export { JETTON_DECIMALS };
 
 /**
  * Get user's jetton wallet address using TestMaster wrapper.
  */
 export async function getJettonWalletAddress(
   ownerAddress: string,
-  jettonMaster: string = TEST_JETTON_MASTER,
+  jettonMaster: string = JETTON_MASTER,
 ): Promise<string> {
-  const { Address, TonClient4 } = await import('@ton/ton');
+  const { Address } = await import('@ton/core');
+  const { TonClient4 } = await import('@ton/ton');
   const { TestMaster } = await import('../contracts/TestMaster');
 
   const master = TestMaster.fromAddress(Address.parse(jettonMaster));
-  const client = new TonClient4({ endpoint: 'https://testnet-v4.tonhubapi.com' });
+  const client = new TonClient4({ endpoint: TONCLIENT_ENDPOINT });
   const provider = client.open(master);
   const walletAddr = await provider.getWalletAddress(Address.parse(ownerAddress));
   return walletAddr.toString();
@@ -28,19 +29,36 @@ export async function getJettonWalletAddress(
  */
 export async function getJettonBalance(
   ownerAddress: string,
-  jettonMaster: string = TEST_JETTON_MASTER,
+  jettonMaster: string = JETTON_MASTER,
   decimals: number = JETTON_DECIMALS,
 ): Promise<number> {
   try {
-    const { Address, TonClient4 } = await import('@ton/ton');
+    const { Address } = await import('@ton/core');
+    const { TonClient4 } = await import('@ton/ton');
     const { TestWallet } = await import('../contracts/TestWallet');
 
     const jettonWalletAddr = await getJettonWalletAddress(ownerAddress, jettonMaster);
     const wallet = TestWallet.fromAddress(Address.parse(jettonWalletAddr));
-    const client = new TonClient4({ endpoint: 'https://testnet-v4.tonhubapi.com' });
+    const client = new TonClient4({ endpoint: TONCLIENT_ENDPOINT });
     const provider = client.open(wallet);
     const data = await provider.getWalletData();
     return Number(data.balance) / 10 ** decimals;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * Get TON balance (native TON, не жетоны).
+ */
+export async function getTonBalance(ownerAddress: string): Promise<number> {
+  try {
+    const { Address } = await import('@ton/core');
+    const { TonClient4 } = await import('@ton/ton');
+    const client = new TonClient4({ endpoint: TONCLIENT_ENDPOINT });
+    const { last } = await client.getLastBlock();
+    const { account } = await client.getAccount(last.seqno, Address.parse(ownerAddress));
+    return Number(account.balance.coins) / 1e9;
   } catch {
     return 0;
   }
@@ -77,7 +95,6 @@ export async function buildJettonTransferPayload(
 
 /**
  * Build JettonMint payload using TestMaster's storeJettonMint.
- * Sent to the master contract — mints new jettons to the receiver.
  */
 export async function buildJettonMintPayload(
   origin: string,

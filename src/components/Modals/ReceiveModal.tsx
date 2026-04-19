@@ -3,11 +3,30 @@ import toast from 'react-hot-toast';
 import { Button, Placeholder, Text } from '@telegram-apps/telegram-ui';
 import { useAppStore } from '../../store/useAppStore';
 import { useTonConnect } from '../../hooks/useTonConnect';
+import { BOT_USERNAME, APP_NAME } from '../../config';
 import styles from './Modals.module.css';
 
 export function ReceiveModal() {
   const { closeModal, isConnected, address } = useAppStore();
   const { openConnectModal } = useTonConnect();
+
+  // Диплинк через startapp=<address> — открывает TMA с параметром
+  // При открытии приложения параметр читается из initData.start_param
+  // и если юзер не подключён — запросит подключение, потом откроет SendModal
+  // с заполненным адресом получателя
+  const deeplink = address
+    ? `https://t.me/${BOT_USERNAME}/${APP_NAME}?startapp=${address}`
+    : '';
+
+  const copyLink = async () => {
+    if (!deeplink) return;
+    try {
+      await navigator.clipboard.writeText(deeplink);
+      toast.success('Ссылка скопирована');
+    } catch {
+      toast.error('Не удалось скопировать');
+    }
+  };
 
   const copyAddress = async () => {
     if (!address) return;
@@ -36,7 +55,7 @@ export function ReceiveModal() {
           <div className={styles.qrSection}>
             <div className={styles.qrWrapper}>
               <QRCodeSVG
-                value={`ton://transfer/${address}`}
+                value={deeplink}
                 size={200}
                 bgColor="#ffffff"
                 fgColor="#000000"
@@ -47,6 +66,9 @@ export function ReceiveModal() {
               <Text className={styles.addressText}>{address}</Text>
               <Button size="s" onClick={copyAddress}>Копировать</Button>
             </div>
+            <Button size="m" stretched mode="plain" onClick={copyLink}>
+              Скопировать ссылку для оплаты
+            </Button>
           </div>
         )}
       </div>

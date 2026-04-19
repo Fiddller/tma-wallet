@@ -75,6 +75,13 @@
   font-weight: 600;
 }
 
+.balanceSecondary {
+  font-size: 14px;
+  color: var(--tgui--subtitle_text_color, #7b8fa3);
+  font-weight: 400;
+  margin-top: 4px;
+}
+
 .inlineButtons {
   padding: 0 8px 12px;
 }

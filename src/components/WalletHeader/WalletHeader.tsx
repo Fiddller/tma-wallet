@@ -7,7 +7,7 @@ import { formatJetton } from '../../utils/formatBalance';
 import styles from './WalletHeader.module.css';
 
 export function WalletHeader() {
-  const { balance, isConnected, openModal, address } = useAppStore();
+  const { balance, tonBalance, isConnected, openModal, address } = useAppStore();
   const { openConnectModal, disconnect } = useTonConnect();
   const { getUser } = useTelegram();
   const [showMenu, setShowMenu] = useState(false);
@@ -70,6 +70,9 @@ export function WalletHeader() {
         <div className={styles.balanceLabel}>Баланс</div>
         <div className={styles.balanceAmount}>
           {formatJetton(balance)} <span className={styles.currency}>TJ</span>
+        </div>
+        <div className={styles.balanceSecondary}>
+          {formatJetton(tonBalance)} TON
         </div>
       </div>
 

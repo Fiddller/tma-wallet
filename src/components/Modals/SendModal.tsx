@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
@@ -9,16 +10,29 @@ import { getJettonWalletAddress, buildJettonTransferPayload, TEST_JETTON_MASTER 
 import styles from './Modals.module.css';
 
 export function SendModal() {
-  const { closeModal, isConnected, address } = useAppStore();
+  const { closeModal, isConnected, address, pendingSendAddress, clearPendingSendAddress } = useAppStore();
   const { sendRawTransaction, openConnectModal } = useTonConnect();
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<SendFormData>({
     resolver: zodResolver(sendFormSchema),
+    defaultValues: {
+      address: pendingSendAddress || '',
+      amount: '',
+    },
   });
+
+  // Если при открытии пришёл адрес из диплинка — заполняем поле и очищаем pending
+  useEffect(() => {
+    if (pendingSendAddress) {
+      setValue('address', pendingSendAddress);
+      clearPendingSendAddress();
+    }
+  }, [pendingSendAddress, setValue, clearPendingSendAddress]);
 
   const onSubmit = async (data: SendFormData) => {
     if (!isConnected || !address) {

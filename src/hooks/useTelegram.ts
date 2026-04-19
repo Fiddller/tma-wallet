@@ -6,14 +6,22 @@ function getWebApp() {
 }
 
 export function useTelegram() {
-  const { activeModal, closeModal } = useAppStore();
+  const { activeModal, closeModal, setPendingSendAddress } = useAppStore();
 
   useEffect(() => {
     const webApp = getWebApp();
     if (!webApp) return;
     webApp.ready();
     webApp.expand();
-  }, []);
+
+    // Обработка диплинка startapp=<address>
+    // Если пришли с параметром — сохраняем адрес для SendModal,
+    // который откроется автоматически (логика в App.tsx)
+    const startParam = webApp.initDataUnsafe?.start_param;
+    if (startParam && typeof startParam === 'string') {
+      setPendingSendAddress(startParam);
+    }
+  }, [setPendingSendAddress]);
 
   useEffect(() => {
     const webApp = getWebApp();

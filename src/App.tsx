@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { WalletHeader } from './components/WalletHeader/WalletHeader';
 import { MarketingBanner } from './components/MarketingBanner/MarketingBanner';
@@ -13,7 +14,22 @@ function App() {
   useTelegram();
   useTonConnect();
 
-  const { activeModal } = useAppStore();
+  const { activeModal, pendingSendAddress, isConnected, openModal } = useAppStore();
+  const { openConnectModal } = useTonConnect();
+
+  // Обработка диплинка: если есть pendingSendAddress
+  // — если авторизован → открываем SendModal (форма заполнится из store)
+  // — если нет → сначала открываем подключение кошелька
+  useEffect(() => {
+    if (!pendingSendAddress) return;
+    if (activeModal) return;
+
+    if (isConnected) {
+      openModal('send');
+    } else {
+      openConnectModal();
+    }
+  }, [pendingSendAddress, isConnected, activeModal, openModal, openConnectModal]);
 
   return (
     <div className="app">

@@ -8,7 +8,7 @@ export function useTonConnect() {
   const address = useTonAddress(false);
   const friendlyAddress = useTonAddress(true);
 
-  const { setIsConnected, setBalance, setAddress } = useAppStore();
+  const { setIsConnected, setBalance, setTonBalance, setAddress } = useAppStore();
 
   useEffect(() => {
     const connected = !!wallet;
@@ -17,14 +17,16 @@ export function useTonConnect() {
     if (connected && address) {
       setAddress(friendlyAddress || address);
       // Lazy-load jetton utils to avoid loading @ton/core on app start
-      import('../utils/jetton').then(({ getJettonBalance }) => {
+      import('../utils/jetton').then(({ getJettonBalance, getTonBalance }) => {
         getJettonBalance(address).then(setBalance);
+        getTonBalance(address).then(setTonBalance);
       });
     } else {
       setBalance(0);
+      setTonBalance(0);
       setAddress('');
     }
-  }, [wallet, address, friendlyAddress, setIsConnected, setBalance, setAddress]);
+  }, [wallet, address, friendlyAddress, setIsConnected, setBalance, setTonBalance, setAddress]);
 
   const openConnectModal = () => {
     tonConnectUI.openModal();
