@@ -14,14 +14,17 @@ function App() {
   useTelegram();
   useTonConnect();
 
-  const { activeModal, pendingSendAddress, isConnected, openModal } = useAppStore();
+  const { activeModal, pendingSendAddress, isConnected, walletRestored, openModal } = useAppStore();
   const { openConnectModal } = useTonConnect();
 
   // Обработка диплинка: если есть pendingSendAddress
   // — если авторизован → открываем SendModal (форма заполнится из store)
   // — если нет → сначала открываем подключение кошелька
+  // Важно: ждём walletRestored, иначе при восстановлении сессии
+  // isConnected ещё false и мы зря откроем connect-модалку
   useEffect(() => {
     if (!pendingSendAddress) return;
+    if (!walletRestored) return;
     if (activeModal) return;
 
     if (isConnected) {
@@ -29,7 +32,7 @@ function App() {
     } else {
       openConnectModal();
     }
-  }, [pendingSendAddress, isConnected, activeModal, openModal, openConnectModal]);
+  }, [pendingSendAddress, isConnected, walletRestored, activeModal, openModal, openConnectModal]);
 
   return (
     <div className="app">

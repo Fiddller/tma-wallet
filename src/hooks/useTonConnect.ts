@@ -8,7 +8,16 @@ export function useTonConnect() {
   const address = useTonAddress(false);
   const friendlyAddress = useTonAddress(true);
 
-  const { setIsConnected, setBalance, setTonBalance, setAddress } = useAppStore();
+  const { setIsConnected, setBalance, setTonBalance, setAddress, setWalletRestored } = useAppStore();
+
+  // tonConnectUI.connectionRestored резолвится когда восстановление
+  // с предыдущей сессии завершено (wallet известен или подтверждено что его нет).
+  // До этого момента isConnected ненадёжен.
+  useEffect(() => {
+    tonConnectUI.connectionRestored.then(() => {
+      setWalletRestored(true);
+    });
+  }, [tonConnectUI, setWalletRestored]);
 
   useEffect(() => {
     const connected = !!wallet;
