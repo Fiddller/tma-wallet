@@ -2,21 +2,36 @@ import { z } from 'zod';
 
 /**
  * Схема env-переменных Vite (import.meta.env).
- * Все переменные опциональны — для незаданных fallback в коде ниже
- * (через || defaultValue), потому что .default() в zod ловит только
- * undefined, а Vite может подставлять пустую строку.
- *
- * Для проды (на Vercel) обязательно переопределить:
- *   - VITE_BOT_USERNAME на свой бот
- *   - VITE_APP_NAME на short name своей TMA
+ * Для каждой переменной задан дефолт через .default() — если на Vercel
+ * не выставлена, используется значение по умолчанию (testnet + TestJetton
+ * + тестовый бот @fiddller_tma_wallet_bot).
  */
 const envSchema = z.object({
-  VITE_JETTON_MASTER: z.string().optional(),
-  VITE_JETTON_DECIMALS: z.string().optional(),
-  VITE_TONCENTER_ENDPOINT: z.string().optional(),
-  VITE_TONCLIENT_ENDPOINT: z.string().optional(),
-  VITE_BOT_USERNAME: z.string().optional(),
-  VITE_APP_NAME: z.string().optional(),
+  VITE_JETTON_MASTER: z
+    .string()
+    .default('kQD8IpAw9lq0c13mg7_iRRMv1cwMEAC_F2tDlFAJDqEVxb5x'),
+
+  VITE_JETTON_DECIMALS: z
+    .string()
+    .default('9')
+    .transform((v) => Number(v))
+    .pipe(z.number().int().min(0).max(18)),
+
+  VITE_TONCENTER_ENDPOINT: z
+    .string()
+    .default('https://testnet.toncenter.com/api/v2'),
+
+  VITE_TONCLIENT_ENDPOINT: z
+    .string()
+    .default('https://testnet-v4.tonhubapi.com'),
+
+  VITE_BOT_USERNAME: z
+    .string()
+    .default('fiddller_tma_wallet_bot'),
+
+  VITE_APP_NAME: z
+    .string()
+    .default('tma-wallet'),
 });
 
 const parsed = envSchema.safeParse(import.meta.env);
@@ -26,28 +41,11 @@ if (!parsed.success) {
   throw new Error('Невалидные env-переменные. Детали в консоли.');
 }
 
-const env = parsed.data;
+export const config = parsed.data;
 
-// Fallback дефолты: testnet + TestJetton + тестовый бот @fiddller_tma_wallet_bot
-export const JETTON_MASTER =
-  env.VITE_JETTON_MASTER || 'kQD8IpAw9lq0c13mg7_iRRMv1cwMEAC_F2tDlFAJDqEVxb5x';
-
-export const JETTON_DECIMALS = Number(env.VITE_JETTON_DECIMALS) || 9;
-
-export const TONCENTER_ENDPOINT =
-  env.VITE_TONCENTER_ENDPOINT || 'https://testnet.toncenter.com/api/v2';
-
-export const TONCLIENT_ENDPOINT =
-  env.VITE_TONCLIENT_ENDPOINT || 'https://testnet-v4.tonhubapi.com';
-
-export const BOT_USERNAME = env.VITE_BOT_USERNAME || 'fiddller_tma_wallet_bot';
-export const APP_NAME = env.VITE_APP_NAME || 'tma_wallet';
-
-export const config = {
-  JETTON_MASTER,
-  JETTON_DECIMALS,
-  TONCENTER_ENDPOINT,
-  TONCLIENT_ENDPOINT,
-  BOT_USERNAME,
-  APP_NAME,
-};
+export const JETTON_MASTER = config.VITE_JETTON_MASTER;
+export const JETTON_DECIMALS = config.VITE_JETTON_DECIMALS;
+export const TONCENTER_ENDPOINT = config.VITE_TONCENTER_ENDPOINT;
+export const TONCLIENT_ENDPOINT = config.VITE_TONCLIENT_ENDPOINT;
+export const BOT_USERNAME = config.VITE_BOT_USERNAME;
+export const APP_NAME = config.VITE_APP_NAME;
