@@ -29,12 +29,12 @@ const envSchema = z.object({
     .string()
     .default('fiddller_tma_wallet_bot'),
 
-  // Short name TMA (из /newapp в BotFather). Если пусто — используется
-  // Main Mini App формат ссылки: t.me/<bot>?startapp=<param>.
-  // Если задан — Side Mini App: t.me/<bot>/<app>?startapp=<param>.
+  // Short name TMA из /newapp в BotFather.
+  // URL формируется как Side Mini App: t.me/<bot>/<app>?startapp=<param>.
+  // Если нужен Main Mini App (без /appname) — выставь VITE_APP_NAME=''.
   VITE_APP_NAME: z
     .string()
-    .default(''),
+    .default('tma-wallet'),
 });
 
 const parsed = envSchema.safeParse(import.meta.env);
