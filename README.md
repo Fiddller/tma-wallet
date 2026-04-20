@@ -25,18 +25,25 @@ npm run dev
 
 ## Env-переменные
 
-Все переменные с префиксом `VITE_` (доступны на клиенте). **Все обязательны.** Валидируются через zod в `src/config.ts` — если что-то не задано, приложение упадёт с явной ошибкой в консоли.
+Все переменные с префиксом `VITE_` (доступны на клиенте). Валидируются через zod в `src/config.ts`.
+
+### Обязательные
 
 | Переменная | Описание |
 |------------|----------|
-| `VITE_JETTON_MASTER` | Адрес master-контракта Jetton |
-| `VITE_JETTON_DECIMALS` | Decimals жетона |
-| `VITE_TONCENTER_ENDPOINT` | Toncenter API endpoint |
-| `VITE_TONCLIENT_ENDPOINT` | TonClient4 endpoint |
-| `VITE_BOT_USERNAME` | Username бота без `@` (для QR-диплинка) |
+| `VITE_BOT_USERNAME` | Username бота без `@` |
 | `VITE_APP_NAME` | Short name TMA из `/newapp` в BotFather |
 
-`VITE_BOT_USERNAME` и `VITE_APP_NAME` используются для QR-диплинка `https://t.me/<bot>/<app>?startapp=<address>`.
+Используются для QR-диплинка `https://t.me/<bot>/<app>?startapp=<address>`.
+
+### Опциональные (есть дефолты под testnet + TestJetton)
+
+| Переменная | Дефолт |
+|------------|--------|
+| `VITE_JETTON_MASTER` | `kQD8Ip...Vxb5x` (TestJetton master) |
+| `VITE_JETTON_DECIMALS` | `9` |
+| `VITE_TONCENTER_ENDPOINT` | `https://testnet.toncenter.com/api/v2` |
+| `VITE_TONCLIENT_ENDPOINT` | `https://testnet-v4.tonhubapi.com` |
 
 ### Настройка на Vercel
 
