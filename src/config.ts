@@ -2,54 +2,52 @@ import { z } from 'zod';
 
 /**
  * Схема env-переменных Vite (import.meta.env).
- * Все переменные должны начинаться с VITE_ чтобы быть доступными на клиенте.
+ * Все переменные опциональны — для незаданных fallback в коде ниже
+ * (через || defaultValue), потому что .default() в zod ловит только
+ * undefined, а Vite может подставлять пустую строку.
  *
- * Разделение:
- *   - Технические (адрес мастера, endpoints, decimals) — с дефолтами
- *     под testnet + TestJetton. Задавать только если меняешь сеть/жетон.
- *   - VITE_BOT_USERNAME и VITE_APP_NAME — обязательны, зависят от конкретного
- *     бота и TMA-приложения пользователя. Без них QR-диплинк не работает.
+ * Для проды (на Vercel) обязательно переопределить:
+ *   - VITE_BOT_USERNAME на свой бот
+ *   - VITE_APP_NAME на short name своей TMA
  */
 const envSchema = z.object({
-  VITE_JETTON_MASTER: z
-    .string()
-    .min(1)
-    .default('kQD8IpAw9lq0c13mg7_iRRMv1cwMEAC_F2tDlFAJDqEVxb5x'),
-
-  VITE_JETTON_DECIMALS: z
-    .string()
-    .default('9')
-    .transform((v) => Number(v))
-    .pipe(z.number().int().min(0).max(18)),
-
-  VITE_TONCENTER_ENDPOINT: z
-    .string()
-    .url()
-    .default('https://testnet.toncenter.com/api/v2'),
-
-  VITE_TONCLIENT_ENDPOINT: z
-    .string()
-    .url()
-    .default('https://testnet-v4.tonhubapi.com'),
-
-  VITE_BOT_USERNAME: z.string().min(1, 'Задайте VITE_BOT_USERNAME (без @)'),
-  VITE_APP_NAME: z.string().min(1, 'Задайте VITE_APP_NAME (short name из /newapp BotFather)'),
+  VITE_JETTON_MASTER: z.string().optional(),
+  VITE_JETTON_DECIMALS: z.string().optional(),
+  VITE_TONCENTER_ENDPOINT: z.string().optional(),
+  VITE_TONCLIENT_ENDPOINT: z.string().optional(),
+  VITE_BOT_USERNAME: z.string().optional(),
+  VITE_APP_NAME: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(import.meta.env);
 
 if (!parsed.success) {
   console.error('Ошибка конфига env:', parsed.error.flatten().fieldErrors);
-  throw new Error(
-    'Невалидные env-переменные. Проверь .env или Vercel Environment Variables. Детали в консоли.',
-  );
+  throw new Error('Невалидные env-переменные. Детали в консоли.');
 }
 
-export const config = parsed.data;
+const env = parsed.data;
 
-export const JETTON_MASTER = config.VITE_JETTON_MASTER;
-export const JETTON_DECIMALS = config.VITE_JETTON_DECIMALS;
-export const TONCENTER_ENDPOINT = config.VITE_TONCENTER_ENDPOINT;
-export const TONCLIENT_ENDPOINT = config.VITE_TONCLIENT_ENDPOINT;
-export const BOT_USERNAME = config.VITE_BOT_USERNAME;
-export const APP_NAME = config.VITE_APP_NAME;
+// Fallback дефолты: testnet + TestJetton + тестовый бот @fiddller_tma_wallet_bot
+export const JETTON_MASTER =
+  env.VITE_JETTON_MASTER || 'kQD8IpAw9lq0c13mg7_iRRMv1cwMEAC_F2tDlFAJDqEVxb5x';
+
+export const JETTON_DECIMALS = Number(env.VITE_JETTON_DECIMALS) || 9;
+
+export const TONCENTER_ENDPOINT =
+  env.VITE_TONCENTER_ENDPOINT || 'https://testnet.toncenter.com/api/v2';
+
+export const TONCLIENT_ENDPOINT =
+  env.VITE_TONCLIENT_ENDPOINT || 'https://testnet-v4.tonhubapi.com';
+
+export const BOT_USERNAME = env.VITE_BOT_USERNAME || 'fiddller_tma_wallet_bot';
+export const APP_NAME = env.VITE_APP_NAME || 'tma-wallet';
+
+export const config = {
+  JETTON_MASTER,
+  JETTON_DECIMALS,
+  TONCENTER_ENDPOINT,
+  TONCLIENT_ENDPOINT,
+  BOT_USERNAME,
+  APP_NAME,
+};
