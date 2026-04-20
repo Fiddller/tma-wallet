@@ -29,7 +29,9 @@ export function useTonConnect() {
     setIsConnected(connected);
 
     if (connected && address) {
-      setAddress(friendlyAddress || address);
+      // В store всегда friendly (base64url, только A-Za-z0-9_-) —
+      // raw с двоеточием ломает Telegram startapp (START_PARAM_INVALID)
+      setAddress(friendlyAddress);
       import('../utils/jetton').then(({ getJettonBalance, getTonBalance }) => {
         getJettonBalance(address).then(setBalance);
         getTonBalance(address).then(setTonBalance);
