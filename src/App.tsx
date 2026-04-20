@@ -12,16 +12,16 @@ import { useTonConnect } from './hooks/useTonConnect';
 
 function App() {
   useTelegram();
-  useTonConnect();
-
-  const { activeModal, pendingSendAddress, isConnected, walletRestored, openModal } = useAppStore();
+  // Единый вызов — все эффекты и функции из одного хука,
+  // чтобы не было двойных подписок на wallet/balance/connectionRestored
   const { openConnectModal } = useTonConnect();
 
-  // Обработка диплинка: если есть pendingSendAddress
-  // — если авторизован → открываем SendModal (форма заполнится из store)
-  // — если нет → сначала открываем подключение кошелька
-  // Важно: ждём walletRestored, иначе при восстановлении сессии
-  // isConnected ещё false и мы зря откроем connect-модалку
+  const { activeModal, pendingSendAddress, isConnected, walletRestored, openModal } = useAppStore();
+
+  // Обработка диплинка: если пришёл pendingSendAddress и wallet восстановлен
+  //   — авторизован → SendModal (форма заполнится из store)
+  //   — не авторизован → сперва connect-модалка, после подключения
+  //     этот эффект сработает снова и откроет SendModal
   useEffect(() => {
     if (!pendingSendAddress) return;
     if (!walletRestored) return;
@@ -32,7 +32,10 @@ function App() {
     } else {
       openConnectModal();
     }
-  }, [pendingSendAddress, isConnected, walletRestored, activeModal, openModal, openConnectModal]);
+    // openConnectModal намеренно НЕ в deps — он пересоздаётся каждый
+    // рендер, иначе эффект будет срабатывать повторно
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingSendAddress, isConnected, walletRestored, activeModal, openModal]);
 
   return (
     <div className="app">

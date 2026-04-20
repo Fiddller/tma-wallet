@@ -1,12 +1,12 @@
 import { useAppStore } from '../../store/useAppStore';
-import { useTonConnect } from '../../hooks/useTonConnect';
+import { useTonActions } from '../../hooks/useTonConnect';
 import { buildJettonMintPayload, TEST_JETTON_MASTER } from '../../utils/jetton';
 import { JettonTxForm } from './JettonTxForm';
 import styles from './Modals.module.css';
 
 export function MintModal() {
   const { closeModal, address } = useAppStore();
-  const { sendRawTransaction } = useTonConnect();
+  const { sendRawTransaction } = useTonActions();
 
   return (
     <div className={styles.overlay} onClick={closeModal}>

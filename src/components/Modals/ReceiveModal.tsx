@@ -2,13 +2,13 @@ import { QRCodeSVG } from 'qrcode.react';
 import toast from 'react-hot-toast';
 import { Button, Placeholder, Text } from '@telegram-apps/telegram-ui';
 import { useAppStore } from '../../store/useAppStore';
-import { useTonConnect } from '../../hooks/useTonConnect';
+import { useTonActions } from '../../hooks/useTonConnect';
 import { BOT_USERNAME, APP_NAME } from '../../config';
 import styles from './Modals.module.css';
 
 export function ReceiveModal() {
   const { closeModal, isConnected, address } = useAppStore();
-  const { openConnectModal } = useTonConnect();
+  const { openConnectModal } = useTonActions();
 
   // Диплинк через startapp=<address> — открывает TMA с параметром
   // При открытии приложения параметр читается из initData.start_param

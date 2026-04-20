@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Avatar, Cell, InlineButtons, Section } from '@telegram-apps/telegram-ui';
 import { useAppStore } from '../../store/useAppStore';
-import { useTonConnect } from '../../hooks/useTonConnect';
+import { useTonActions } from '../../hooks/useTonConnect';
 import { useTelegram } from '../../hooks/useTelegram';
 import { formatJetton } from '../../utils/formatBalance';
 import styles from './WalletHeader.module.css';
 
 export function WalletHeader() {
   const { balance, tonBalance, isConnected, openModal, address } = useAppStore();
-  const { openConnectModal, disconnect } = useTonConnect();
+  const { openConnectModal, disconnect } = useTonActions();
   const { getUser } = useTelegram();
   const [showMenu, setShowMenu] = useState(false);
 

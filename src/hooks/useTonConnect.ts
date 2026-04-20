@@ -2,6 +2,11 @@ import { useEffect } from 'react';
 import { useTonConnectUI, useTonWallet, useTonAddress } from '@tonconnect/ui-react';
 import { useAppStore } from '../store/useAppStore';
 
+/**
+ * Хук с эффектами: подписывается на wallet, подтягивает баланс,
+ * отслеживает connectionRestored. Вызывать ОДИН раз — в App.tsx.
+ * Модалкам нужны функции без эффектов — useTonActions().
+ */
 export function useTonConnect() {
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
@@ -25,7 +30,6 @@ export function useTonConnect() {
 
     if (connected && address) {
       setAddress(friendlyAddress || address);
-      // Lazy-load jetton utils to avoid loading @ton/core on app start
       import('../utils/jetton').then(({ getJettonBalance, getTonBalance }) => {
         getJettonBalance(address).then(setBalance);
         getTonBalance(address).then(setTonBalance);
@@ -37,42 +41,30 @@ export function useTonConnect() {
     }
   }, [wallet, address, friendlyAddress, setIsConnected, setBalance, setTonBalance, setAddress]);
 
-  const openConnectModal = () => {
-    tonConnectUI.openModal();
-  };
-
-  const disconnect = () => {
-    tonConnectUI.disconnect();
-  };
-
-  const sendTransaction = async (to: string, amount: string) => {
-    const amountNano = Math.floor(Number(amount) * 1e9).toString();
-    return tonConnectUI.sendTransaction({
-      validUntil: Math.floor(Date.now() / 1000) + 600,
-      messages: [
-        {
-          address: to,
-          amount: amountNano,
-        },
-      ],
-    });
-  };
-
-  const sendRawTransaction = async (msg: { address: string; amount: string; payload: string }) => {
-    return tonConnectUI.sendTransaction({
-      validUntil: Math.floor(Date.now() / 1000) + 600,
-      messages: [msg],
-    });
-  };
-
   return {
     tonConnectUI,
     wallet,
     address,
     friendlyAddress,
-    openConnectModal,
-    disconnect,
-    sendTransaction,
-    sendRawTransaction,
+    openConnectModal: () => tonConnectUI.openModal(),
+    disconnect: () => tonConnectUI.disconnect(),
+  };
+}
+
+/**
+ * Лёгкий хук только с функциями — без эффектов.
+ * Использовать в модалках чтобы не дублировать подписки.
+ */
+export function useTonActions() {
+  const [tonConnectUI] = useTonConnectUI();
+
+  return {
+    openConnectModal: () => tonConnectUI.openModal(),
+    disconnect: () => tonConnectUI.disconnect(),
+    sendRawTransaction: (msg: { address: string; amount: string; payload: string }) =>
+      tonConnectUI.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 600,
+        messages: [msg],
+      }),
   };
 }

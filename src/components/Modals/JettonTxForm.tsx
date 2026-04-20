@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
 import { Button, Input, Section, Placeholder } from '@telegram-apps/telegram-ui';
 import { useAppStore } from '../../store/useAppStore';
-import { useTonConnect } from '../../hooks/useTonConnect';
+import { useTonActions } from '../../hooks/useTonConnect';
 import { sendFormSchema, type SendFormData } from '../../utils/tonValidation';
 import styles from './Modals.module.css';
 
@@ -34,7 +34,7 @@ export function JettonTxForm({
   successText,
 }: JettonTxFormProps) {
   const { isConnected, pendingSendAddress, clearPendingSendAddress } = useAppStore();
-  const { openConnectModal } = useTonConnect();
+  const { openConnectModal } = useTonActions();
 
   const {
     control,

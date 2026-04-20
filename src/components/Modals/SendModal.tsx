@@ -1,13 +1,13 @@
 import toast from 'react-hot-toast';
 import { useAppStore } from '../../store/useAppStore';
-import { useTonConnect } from '../../hooks/useTonConnect';
+import { useTonActions } from '../../hooks/useTonConnect';
 import { getJettonWalletAddress, buildJettonTransferPayload, TEST_JETTON_MASTER } from '../../utils/jetton';
 import { JettonTxForm } from './JettonTxForm';
 import styles from './Modals.module.css';
 
 export function SendModal() {
   const { closeModal, address } = useAppStore();
-  const { sendRawTransaction } = useTonConnect();
+  const { sendRawTransaction } = useTonActions();
 
   return (
     <div className={styles.overlay} onClick={closeModal}>
