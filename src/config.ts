@@ -41,7 +41,7 @@ export const TONCLIENT_ENDPOINT =
   env.VITE_TONCLIENT_ENDPOINT || 'https://testnet-v4.tonhubapi.com';
 
 export const BOT_USERNAME = env.VITE_BOT_USERNAME || 'fiddller_tma_wallet_bot';
-export const APP_NAME = env.VITE_APP_NAME || 'tma-wallet';
+export const APP_NAME = env.VITE_APP_NAME || 'tma_wallet';
 
 export const config = {
   JETTON_MASTER,
