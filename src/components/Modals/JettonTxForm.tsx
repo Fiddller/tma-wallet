@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
 import { Button, Input, Section, Placeholder } from '@telegram-apps/telegram-ui';
@@ -9,22 +9,20 @@ import { sendFormSchema, type SendFormData } from '../../utils/tonValidation';
 import styles from './Modals.module.css';
 
 interface JettonTxFormProps {
-  /** Текст заголовка модалки (уже отрисован родителем — тут только форма) */
   addressHeader: string;
   amountHeader: string;
   submitText: (submitting: boolean) => string;
-  /** Обработчик сабмита — делает реальную транзакцию, бросает при ошибке */
   onSend: (data: SendFormData) => Promise<void>;
-  /** Начальное значение адреса — например из диплинка */
   defaultAddress?: string;
-  /** Вызывается после успешного сабмита */
   onSuccess: () => void;
   successText: string;
 }
 
 /**
  * Общая форма отправки/минта жетонов: адрес + сумма.
- * Родительская модалка задаёт заголовки и логику onSend.
+ * Использует react-hook-form Controller (controlled inputs) вместо register,
+ * потому что Input из @telegram-apps/telegram-ui не прокидывает ref
+ * через forwardRef корректно — register'а не хватает.
  */
 export function JettonTxForm({
   addressHeader,
@@ -39,7 +37,7 @@ export function JettonTxForm({
   const { openConnectModal } = useTonConnect();
 
   const {
-    register,
+    control,
     handleSubmit,
     setValue,
     formState: { errors, isSubmitting },
@@ -49,12 +47,13 @@ export function JettonTxForm({
       address: defaultAddress || pendingSendAddress || '',
       amount: '',
     },
+    mode: 'onBlur',
   });
 
   // Адрес из диплинка — заполняем и очищаем
   useEffect(() => {
     if (pendingSendAddress) {
-      setValue('address', pendingSendAddress);
+      setValue('address', pendingSendAddress, { shouldValidate: true });
       clearPendingSendAddress();
     }
   }, [pendingSendAddress, setValue, clearPendingSendAddress]);
@@ -84,22 +83,42 @@ export function JettonTxForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Section>
-        <Input
-          header={addressHeader}
-          placeholder="EQ... или UQ..."
-          status={errors.address ? 'error' : 'default'}
-          {...register('address')}
+        <Controller
+          name="address"
+          control={control}
+          render={({ field }) => (
+            <Input
+              header={addressHeader}
+              placeholder="EQ... или UQ..."
+              status={errors.address ? 'error' : 'default'}
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              name={field.name}
+            />
+          )}
         />
         {errors.address && <div className={styles.errorText}>{errors.address.message}</div>}
-        <Input
-          header={amountHeader}
-          placeholder="0.00"
-          inputMode="decimal"
-          status={errors.amount ? 'error' : 'default'}
-          {...register('amount')}
+
+        <Controller
+          name="amount"
+          control={control}
+          render={({ field }) => (
+            <Input
+              header={amountHeader}
+              placeholder="0.00"
+              inputMode="decimal"
+              status={errors.amount ? 'error' : 'default'}
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              name={field.name}
+            />
+          )}
         />
         {errors.amount && <div className={styles.errorText}>{errors.amount.message}</div>}
       </Section>
+
       <div className={styles.btnWrap}>
         <Button size="l" stretched type="submit" disabled={isSubmitting}>
           {submitText(isSubmitting)}
