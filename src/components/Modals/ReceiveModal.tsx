@@ -14,8 +14,12 @@ export function ReceiveModal() {
   // При открытии приложения параметр читается из initData.start_param
   // и если юзер не подключён — запросит подключение, потом откроет SendModal
   // с заполненным адресом получателя
+  // Main Mini App (кнопка "Launch app" в профиле бота) → без /<app>
+  // Side Mini App (из /newapp) → с /<app>
   const deeplink = address
-    ? `https://t.me/${BOT_USERNAME}/${APP_NAME}?startapp=${address}`
+    ? APP_NAME
+      ? `https://t.me/${BOT_USERNAME}/${APP_NAME}?startapp=${address}`
+      : `https://t.me/${BOT_USERNAME}?startapp=${address}`
     : '';
 
   const copyLink = async () => {
