@@ -25,18 +25,18 @@ npm run dev
 
 ## Env-переменные
 
-Все переменные с префиксом `VITE_` (доступны на клиенте). Валидируются через zod в `src/config.ts` — если что-то не задано, приложение упадёт с явной ошибкой в консоли.
+Все переменные с префиксом `VITE_` (доступны на клиенте). **Все обязательны.** Валидируются через zod в `src/config.ts` — если что-то не задано, приложение упадёт с явной ошибкой в консоли.
 
-| Переменная | Обязательна | Описание |
-|------------|-------------|----------|
-| `VITE_JETTON_MASTER` | нет (есть дефолт) | Адрес master-контракта Jetton |
-| `VITE_JETTON_DECIMALS` | нет | Decimals жетона (9 по умолчанию) |
-| `VITE_TONCENTER_ENDPOINT` | нет | Testnet toncenter API |
-| `VITE_TONCLIENT_ENDPOINT` | нет | Testnet TonClient4 endpoint |
-| `VITE_BOT_USERNAME` | **ДА** | Username бота без `@` |
-| `VITE_APP_NAME` | **ДА** | Short name TMA из `/newapp` в BotFather |
+| Переменная | Описание |
+|------------|----------|
+| `VITE_JETTON_MASTER` | Адрес master-контракта Jetton |
+| `VITE_JETTON_DECIMALS` | Decimals жетона |
+| `VITE_TONCENTER_ENDPOINT` | Toncenter API endpoint |
+| `VITE_TONCLIENT_ENDPOINT` | TonClient4 endpoint |
+| `VITE_BOT_USERNAME` | Username бота без `@` (для QR-диплинка) |
+| `VITE_APP_NAME` | Short name TMA из `/newapp` в BotFather |
 
-`VITE_BOT_USERNAME` и `VITE_APP_NAME` используются для QR-диплинка `https://t.me/<bot>/<app>?startapp=<address>` — без них QR покажет ссылку на дефолтного бота и не откроется.
+`VITE_BOT_USERNAME` и `VITE_APP_NAME` используются для QR-диплинка `https://t.me/<bot>/<app>?startapp=<address>`.
 
 ### Настройка на Vercel
 

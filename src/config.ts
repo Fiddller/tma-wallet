@@ -4,34 +4,25 @@ import { z } from 'zod';
  * Схема env-переменных Vite (import.meta.env).
  * Все переменные должны начинаться с VITE_ чтобы быть доступными на клиенте.
  *
- * Для Vercel: задаются в Project Settings → Environment Variables.
- * Для локальной разработки: копируй .env.example в .env.
+ * Все переменные обязательны — без дефолтов. Задавать:
+ *   - локально: .env (см. .env.example)
+ *   - на Vercel: Project Settings → Environment Variables
+ *
+ * Если что-то не задано — приложение упадёт с ошибкой конфига в консоли,
+ * а не будет молча работать с неправильными значениями.
  */
 const envSchema = z.object({
-  VITE_JETTON_MASTER: z
-    .string()
-    .min(1, 'VITE_JETTON_MASTER обязателен')
-    .default('kQD8IpAw9lq0c13mg7_iRRMv1cwMEAC_F2tDlFAJDqEVxb5x'),
+  VITE_JETTON_MASTER: z.string().min(1, 'Задайте VITE_JETTON_MASTER (адрес master-контракта)'),
 
   VITE_JETTON_DECIMALS: z
     .string()
-    .default('9')
+    .min(1, 'Задайте VITE_JETTON_DECIMALS')
     .transform((v) => Number(v))
     .pipe(z.number().int().min(0).max(18)),
 
-  VITE_TONCENTER_ENDPOINT: z
-    .string()
-    .url()
-    .default('https://testnet.toncenter.com/api/v2'),
+  VITE_TONCENTER_ENDPOINT: z.string().url('Задайте VITE_TONCENTER_ENDPOINT (URL)'),
+  VITE_TONCLIENT_ENDPOINT: z.string().url('Задайте VITE_TONCLIENT_ENDPOINT (URL)'),
 
-  VITE_TONCLIENT_ENDPOINT: z
-    .string()
-    .url()
-    .default('https://testnet-v4.tonhubapi.com'),
-
-  // Bot username и название TMA-приложения — обязательны для работы QR-диплинков.
-  // Без них диплинк сгенерится на чужого бота и не откроется при сканировании.
-  // Задать на Vercel: Project Settings → Environment Variables.
   VITE_BOT_USERNAME: z.string().min(1, 'Задайте VITE_BOT_USERNAME (без @)'),
   VITE_APP_NAME: z.string().min(1, 'Задайте VITE_APP_NAME (из /newapp BotFather)'),
 });
