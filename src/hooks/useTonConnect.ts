@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useTonConnectUI, useTonWallet, useTonAddress } from '@tonconnect/ui-react';
 import { useAppStore } from '../store/useAppStore';
+import { useBalance } from './useBalance';
 
 /**
  * Хук с эффектами: подписывается на wallet, подтягивает баланс,
@@ -13,7 +14,10 @@ export function useTonConnect() {
   const address = useTonAddress(false);
   const friendlyAddress = useTonAddress(true);
 
-  const { setIsConnected, setBalance, setTonBalance, setAddress, setWalletRestored } = useAppStore();
+  const { setIsConnected, setAddress, setWalletRestored } = useAppStore();
+
+  // Баланс читается через react-query, результат синкается в store
+  useBalance(address);
 
   // tonConnectUI.connectionRestored резолвится когда восстановление
   // с предыдущей сессии завершено (wallet известен или подтверждено что его нет).
@@ -32,16 +36,10 @@ export function useTonConnect() {
       // В store всегда friendly (base64url, только A-Za-z0-9_-) —
       // raw с двоеточием ломает Telegram startapp (START_PARAM_INVALID)
       setAddress(friendlyAddress);
-      import('../utils/jetton').then(({ getJettonBalance, getTonBalance }) => {
-        getJettonBalance(address).then(setBalance);
-        getTonBalance(address).then(setTonBalance);
-      });
     } else {
-      setBalance(0);
-      setTonBalance(0);
       setAddress('');
     }
-  }, [wallet, address, friendlyAddress, setIsConnected, setBalance, setTonBalance, setAddress]);
+  }, [wallet, address, friendlyAddress, setIsConnected, setAddress]);
 
   return {
     tonConnectUI,
