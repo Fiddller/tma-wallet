@@ -112,10 +112,19 @@ export function useBalance(address: string) {
     placeholderData: keepPreviousData,
   });
 
+  // Сбрасываем store в 0 ТОЛЬКО при отсутствии address (дисконнект).
+  // В остальных случаях пишем только реальные числа — на промежуточном
+  // undefined (рефетч, queryKey-смена, ошибка) store сохраняет последнее
+  // значение, баланс не моргает в 0.
   useEffect(() => {
-    setBalance(jetton.data ?? 0);
-    setTonBalance(ton.data ?? 0);
-  }, [jetton.data, ton.data, setBalance, setTonBalance]);
+    if (!address) {
+      setBalance(0);
+      setTonBalance(0);
+      return;
+    }
+    if (jetton.data !== undefined) setBalance(jetton.data);
+    if (ton.data !== undefined) setTonBalance(ton.data);
+  }, [address, jetton.data, ton.data, setBalance, setTonBalance]);
 
   return {
     jettonBalance: jetton.data ?? 0,
