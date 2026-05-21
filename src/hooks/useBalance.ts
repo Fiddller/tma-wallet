@@ -86,15 +86,12 @@ export function useBalance(address: string) {
     queryKey: [...balanceKeys.jetton(address), endpoint, walletAddrStr],
     queryFn: async () => {
       if (!wallet) return 0;
-      try {
-        const data = await wallet.getWalletData();
-        return Number(fromNano(data.balance));
-      } catch {
-        // jetton-wallet ещё не задеплоен (uninit-контракт) — типично
-        // на testnet пока юзер не получил ни одного жетона. getWalletData
-        // в этом случае кидает "Unable to execute get method".
-        return 0;
-      }
+      // Без try/catch: если getWalletData кидает (транзиентная сеть
+      // или uninit-контракт), пусть ошибка летит в react-query —
+      // тогда data остаётся прошлой (placeholderData), а не перезаписывается
+      // нулём. На первом фетче data будет undefined → ?? 0 покажет 0.
+      const data = await wallet.getWalletData();
+      return Number(fromNano(data.balance));
     },
     enabled: !!address,
     retry: 1,
