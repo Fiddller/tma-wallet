@@ -1,11 +1,12 @@
 import { useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Address } from '@ton/core';
+import { Address, fromNano } from '@ton/core';
 import { TonClient4 } from '@ton/ton';
 import { TestWallet } from '../contracts/TestWallet';
 import { TestMaster } from '../contracts/TestMaster';
-import { JETTON_MASTER, JETTON_DECIMALS, TONCLIENT_ENDPOINT } from '../config';
+import { JETTON_MASTER, TONCLIENT_ENDPOINT } from '../config';
 import { useAppStore } from '../store/useAppStore';
+import { useAsyncInitialize } from './useAsyncInitialize';
 
 export const balanceKeys = {
   all: ['balance'] as const,
@@ -23,11 +24,14 @@ function getClient() {
 /**
  * Хук чтения баланса через react-query.
  * Без авто-интервала — обновлять через invalidateBalance() после транзакций.
- * Синкает результат в zustand store для совместимости с компонентами.
+ * Синкает результат в zustand store.
  *
- * openedMaster — useMemo без deps, контракт мастера общий.
- * jetton/ton — useQuery с queryKey по address: когда address пуст, query
- * disabled и data === undefined, store автоматически встаёт в 0.
+ * Архитектура (паттерн TON-приложений):
+ *   useMemo openedMaster — общий, без deps.
+ *   useAsyncInitialize walletAddress — резолв jetton-wallet-адреса async'ом.
+ *   useMemo wallet — синхронно открываем TestWallet когда адрес известен.
+ *   useQuery jetton — дёргает уже открытый wallet, queryKey включает wallet.address.
+ *   useQuery ton — нативный баланс через общий client.
  */
 export function useBalance(address: string) {
   const setBalance = useAppStore((s) => s.setBalance);
@@ -38,15 +42,24 @@ export function useBalance(address: string) {
     [],
   );
 
+  const walletAddress = useAsyncInitialize(async () => {
+    if (!address) return null;
+    return await openedMaster.getWalletAddress(Address.parse(address));
+  }, [address, openedMaster]);
+
+  const wallet = useMemo(() => {
+    if (!walletAddress) return null;
+    return getClient().open(TestWallet.fromAddress(walletAddress));
+  }, [walletAddress]);
+
   const jetton = useQuery({
-    queryKey: balanceKeys.jetton(address),
+    queryKey: [...balanceKeys.jetton(address), wallet?.address.toString()],
     queryFn: async () => {
-      const walletAddr = await openedMaster.getWalletAddress(Address.parse(address));
-      const wallet = getClient().open(TestWallet.fromAddress(walletAddr));
+      if (!wallet) return 0;
       const data = await wallet.getWalletData();
-      return Number(data.balance) / 10 ** JETTON_DECIMALS;
+      return Number(fromNano(data.balance));
     },
-    enabled: !!address,
+    enabled: !!address && !!wallet,
     retry: 3,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 5000),
   });
@@ -57,7 +70,7 @@ export function useBalance(address: string) {
       const client = getClient();
       const { last } = await client.getLastBlock();
       const { account } = await client.getAccount(last.seqno, Address.parse(address));
-      return Number(account.balance.coins) / 1e9;
+      return Number(fromNano(account.balance.coins));
     },
     enabled: !!address,
     retry: 3,
@@ -82,7 +95,7 @@ export function useBalance(address: string) {
 }
 
 /**
- * Хелпер для инвалидации баланса после транзакций.
+ * Инвалидация баланса после транзакций.
  */
 export function useInvalidateBalance() {
   const qc = useQueryClient();
