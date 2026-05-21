@@ -115,13 +115,9 @@ export function useBalance(address: string) {
     placeholderData: keepPreviousData,
   });
 
-  // Пишем в store только когда data определена. Иначе любое промежуточное
-  // undefined (новый queryKey, ошибка фетча) обнуляло бы store через ?? 0
-  // и баланс мерцал бы в 0. На дисконнекте store обнуляется отдельно
-  // в useTonConnect через сброс address — отдельная история.
   useEffect(() => {
-    if (jetton.data !== undefined) setBalance(jetton.data);
-    if (ton.data !== undefined) setTonBalance(ton.data);
+    setBalance(jetton.data ?? 0);
+    setTonBalance(ton.data ?? 0);
   }, [jetton.data, ton.data, setBalance, setTonBalance]);
 
   return {
