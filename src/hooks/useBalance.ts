@@ -85,13 +85,13 @@ export function useBalance(address: string) {
   const jetton = useQuery({
     queryKey: [...balanceKeys.jetton(address), endpoint, walletAddrStr],
     queryFn: async () => {
-      if (!wallet) return 0;
-      // Без try/catch: если getWalletData кидает (транзиентная сеть
-      // или uninit-контракт), пусть ошибка летит в react-query —
-      // тогда data остаётся прошлой (placeholderData), а не перезаписывается
-      // нулём. На первом фетче data будет undefined → ?? 0 покажет 0.
-      const data = await wallet.getWalletData();
-      return Number(fromNano(data.balance));
+      // Если wallet ещё не готов — НЕ возвращаем 0, а undefined (implicit),
+      // чтобы не перезаписать в store реальный баланс нулём. data === undefined
+      // отфильтруется в useEffect.
+      if (wallet) {
+        const data = await wallet.getWalletData();
+        return Number(fromNano(data.balance));
+      }
     },
     enabled: !!address,
     retry: 1,
@@ -112,19 +112,12 @@ export function useBalance(address: string) {
     placeholderData: keepPreviousData,
   });
 
-  // Сбрасываем store в 0 ТОЛЬКО при отсутствии address (дисконнект).
-  // В остальных случаях пишем только реальные числа — на промежуточном
-  // undefined (рефетч, queryKey-смена, ошибка) store сохраняет последнее
-  // значение, баланс не моргает в 0.
+  // Пишем в store только реальные числа. Любой undefined (первый прогон,
+  // wallet не готов, рефетч, ошибка) — пропускаем, store держит прежнее.
   useEffect(() => {
-    if (!address) {
-      setBalance(0);
-      setTonBalance(0);
-      return;
-    }
     if (jetton.data !== undefined) setBalance(jetton.data);
     if (ton.data !== undefined) setTonBalance(ton.data);
-  }, [address, jetton.data, ton.data, setBalance, setTonBalance]);
+  }, [jetton.data, ton.data, setBalance, setTonBalance]);
 
   return {
     jettonBalance: jetton.data ?? 0,
