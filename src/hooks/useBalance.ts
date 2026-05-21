@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useTonWallet } from '@tonconnect/ui-react';
 import { Address, fromNano, type OpenedContract } from '@ton/core';
 import { TonClient4 } from '@ton/ton';
@@ -98,6 +98,7 @@ export function useBalance(address: string) {
     },
     enabled: !!address,
     retry: 1,
+    placeholderData: keepPreviousData,
   });
 
   const ton = useQuery({
@@ -111,6 +112,7 @@ export function useBalance(address: string) {
     enabled: !!address,
     retry: 3,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 5000),
+    placeholderData: keepPreviousData,
   });
 
   useEffect(() => {
