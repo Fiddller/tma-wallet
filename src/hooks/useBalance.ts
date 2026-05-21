@@ -52,16 +52,28 @@ export function useBalance(address: string) {
     return getClient().open(TestWallet.fromAddress(walletAddress));
   }, [walletAddress]);
 
+  // queryKey включает walletAddrStr: пока wallet резолвится (useAsyncInitialize),
+  // ключ один; когда wallet открывается — ключ меняется и react-query сам
+  // делает новый фетч. enabled: !!address (не !!wallet) — чтобы первый прогон
+  // случился сразу и хук не блокировался ожиданием wallet.
+  const walletAddrStr = wallet?.address.toString();
+
   const jetton = useQuery({
-    queryKey: [...balanceKeys.jetton(address), wallet?.address.toString()],
+    queryKey: [...balanceKeys.jetton(address), walletAddrStr],
     queryFn: async () => {
       if (!wallet) return 0;
-      const data = await wallet.getWalletData();
-      return Number(fromNano(data.balance));
+      try {
+        const data = await wallet.getWalletData();
+        return Number(fromNano(data.balance));
+      } catch {
+        // jetton-wallet ещё не задеплоен (uninit-контракт) — типично
+        // на testnet пока юзер не получил ни одного жетона. getWalletData
+        // в этом случае кидает "Unable to execute get method".
+        return 0;
+      }
     },
-    enabled: !!address && !!wallet,
-    retry: 3,
-    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 5000),
+    enabled: !!address,
+    retry: 1,
   });
 
   const ton = useQuery({
